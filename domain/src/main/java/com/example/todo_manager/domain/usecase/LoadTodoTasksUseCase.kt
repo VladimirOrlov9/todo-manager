@@ -6,7 +6,7 @@ import com.example.todo_manager.domain.repository.TodoItemsRepository
 class LoadTodoTasksUseCase(
     private val todoItemsRepository: TodoItemsRepository
 ) {
-    fun execute(): List<TodoItem> {
+    suspend fun execute(): List<TodoItem> {
         return todoItemsRepository.getTodoItems()
     }
 }

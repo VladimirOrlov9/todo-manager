@@ -46,6 +46,9 @@ class MainScreenFragment : Fragment() {
         vm.todoList.observe(viewLifecycleOwner) { newList ->
             adapter.submitList(newList)
         }
+        binding.addFab.setOnClickListener {
+            findNavController().navigate(R.id.action_mainScreenFragment_to_todoScreenFragment)
+        }
     }
 
     private fun initRecyclerView() {
