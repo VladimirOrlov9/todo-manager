@@ -7,4 +7,19 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="blue">#007AFF</color>
+    <color name="green">#34C759</color>
+    <color name="red">#FF3B30</color>
+
+    <color name="back_primary">#F7F6F2</color>
+    <color name="back_secondary">#FFFFFF</color>
+    <color name="back_elevated">#FFFFFF</color>
+
+    <color name="label_primary">#000000</color>
+    <color name="label_tertiary">#0000004D</color>
+
+    <color name="support_separator">#33000000</color>
+
+    <color name="todolist_bg_color">#FFFFFF</color>
 </resources>

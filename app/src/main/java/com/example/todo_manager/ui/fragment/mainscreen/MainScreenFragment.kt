@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -12,6 +13,7 @@ import com.example.todo_manager.R
 import com.example.todo_manager.databinding.FragmentMainScreenBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+const val TODO_ID_BUNDLE = "todo_id_bundle"
 
 class MainScreenFragment : Fragment() {
 
@@ -47,9 +49,20 @@ class MainScreenFragment : Fragment() {
     }
 
     private fun initRecyclerView() {
-        adapter = TodoListAdapter { id ->
-            // TODO: navigate to todo details
-        }
+        adapter = TodoListAdapter(
+            todoClickEvent = { id ->
+                val bundle = Bundle().apply {
+                    putString(TODO_ID_BUNDLE, id)
+                }
+                findNavController().navigate(
+                    R.id.action_mainScreenFragment_to_todoScreenFragment,
+                    bundle
+                )
+            },
+            newTodoClickEvent = {
+                // TODO: navigate to todo creation
+                findNavController().navigate(R.id.action_mainScreenFragment_to_todoScreenFragment)
+            })
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
     }
