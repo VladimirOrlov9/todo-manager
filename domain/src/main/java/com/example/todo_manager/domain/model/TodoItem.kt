@@ -5,7 +5,7 @@ data class TodoItem(
     var description: String,
     var importance: Importance,
     val deadline: Long? = null,
-    var isDone: Boolean,
+    var isDone: Boolean = false,
     val creationDate: Long,
     var lastEditDate: Long? = null
 )

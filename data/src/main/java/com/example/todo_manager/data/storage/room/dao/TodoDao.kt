@@ -28,14 +28,30 @@ interface TodoDao: TodoItemsRepository {
         println(list.toString())
         return list.mapToTodoItem()
     }
+
+    override suspend fun addNewTodo(todoItem: TodoItem) {
+        val todoEntity: TodoItemEntity = todoItem.mapToTodoItemEntity()
+        insertTodoItem(todoEntity)
+    }
 }
+
+private fun TodoItem.mapToTodoItemEntity(): TodoItemEntity =
+    TodoItemEntity(
+        id = this.id,
+        description = this.description,
+        importance = this.importance.ordinal,
+        deadline = this.deadline,
+        isDone = this.isDone,
+        creationDate = this.creationDate,
+        lastEditDate = this.lastEditDate
+    )
 
 private fun List<TodoItemEntity>.mapToTodoItem(): List<TodoItem> {
     return this.map {
         TodoItem(
             id = it.id,
             description = it.description,
-            importance = Importance.valueOf(it.importance),
+            importance = Importance.values()[it.importance],
             deadline = it.deadline,
             isDone = it.isDone,
             creationDate = it.creationDate,

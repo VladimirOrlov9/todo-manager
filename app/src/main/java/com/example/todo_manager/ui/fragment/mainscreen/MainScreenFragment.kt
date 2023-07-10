@@ -23,11 +23,6 @@ class MainScreenFragment : Fragment() {
     private val vm by viewModel<MainScreenViewModel>()
     private lateinit var adapter: TodoListAdapter
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        vm.loadTodoList()
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -70,6 +65,11 @@ class MainScreenFragment : Fragment() {
         binding.recycler.adapter = adapter
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        vm.loadTodoList()
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

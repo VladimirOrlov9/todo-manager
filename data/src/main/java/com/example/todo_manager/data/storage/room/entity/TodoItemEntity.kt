@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class TodoItemEntity(
     @PrimaryKey val id: String,
     var description: String,
-    var importance: String,
+    var importance: Int,
     val deadline: Long? = null,
     @ColumnInfo(name = "is_done") var isDone: Boolean,
     @ColumnInfo(name = "creation_date") val creationDate: Long,
