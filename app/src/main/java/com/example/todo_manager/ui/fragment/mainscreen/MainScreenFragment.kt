@@ -5,7 +5,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,16 +38,25 @@ class MainScreenFragment : Fragment() {
         initRecyclerView()
 
         vm.todoList.observe(viewLifecycleOwner) { newList ->
-            adapter.submitList(newList)
+            adapter.submitListWithFilterApply(newList)
         }
         binding.addFab.setOnClickListener {
             findNavController().navigate(R.id.action_mainScreenFragment_to_todoScreenFragment)
+        }
+        binding.toolbar.setOnMenuItemClickListener {  menuItem ->
+            when(menuItem.itemId) {
+                R.id.visibility -> {
+                    adapter.changeVisibility()
+                    true
+                }
+                else -> false
+            }
         }
     }
 
     private fun initRecyclerView() {
         adapter = TodoListAdapter(
-            todoClickEvent = { id ->
+            todoInfoClickEvent = { id ->
                 val bundle = Bundle().apply {
                     putString(TODO_ID_BUNDLE, id)
                 }
@@ -56,6 +64,9 @@ class MainScreenFragment : Fragment() {
                     R.id.action_mainScreenFragment_to_todoScreenFragment,
                     bundle
                 )
+            },
+            todoCheckBoxStatusChangedEvent = { id, isChecked ->
+                vm.updateTodoStatus(id, isChecked)
             },
             newTodoClickEvent = {
                 // TODO: navigate to todo creation

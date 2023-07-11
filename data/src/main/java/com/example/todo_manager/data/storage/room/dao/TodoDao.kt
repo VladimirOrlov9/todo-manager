@@ -23,6 +23,9 @@ interface TodoDao: TodoItemsRepository {
     @Query("SELECT * FROM todos")
     suspend fun getAllTodos(): List<TodoItemEntity>
 
+    @Query("UPDATE todos SET is_done = :status WHERE id = :id")
+    override suspend fun updateTodoStatus(id: String, status: Boolean)
+
     override suspend fun getTodoItems(): List<TodoItem> {
         val list = getAllTodos()
         println(list.toString())

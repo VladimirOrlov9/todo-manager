@@ -6,11 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo_manager.domain.model.TodoItem
 import com.example.todo_manager.domain.usecase.LoadTodoTasksUseCase
+import com.example.todo_manager.domain.usecase.UpdateTodoStatusUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(
-    private val loadTodoTasksUseCase: LoadTodoTasksUseCase
+    private val loadTodoTasksUseCase: LoadTodoTasksUseCase,
+    private val updateTodoStatusUseCase: UpdateTodoStatusUseCase
 ): ViewModel() {
 
     private val _todoList = MutableLiveData<List<TodoItem>>()
@@ -20,6 +22,12 @@ class MainScreenViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val list = loadTodoTasksUseCase.execute()
             _todoList.postValue(list)
+        }
+    }
+
+    fun updateTodoStatus(id: String, status: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
+            updateTodoStatusUseCase.execute(id, status)
         }
     }
 }

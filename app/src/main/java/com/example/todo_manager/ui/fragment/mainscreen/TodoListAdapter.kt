@@ -1,6 +1,5 @@
 package com.example.todo_manager.ui.fragment.mainscreen
 
-import android.graphics.Paint
 import android.text.SpannableString
 import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
@@ -20,9 +19,31 @@ const val VIEW_TYPE_TODO = 1
 const val VIEW_TYPE_NEW_TODO = 2
 
 class TodoListAdapter(
-    private val todoClickEvent: (String) -> Unit,
+    private val todoInfoClickEvent: (String) -> Unit,
+    private val todoCheckBoxStatusChangedEvent: (String, Boolean) -> Unit,
     private val newTodoClickEvent: () -> Unit
 ) : ListAdapter<TodoItem, RecyclerView.ViewHolder>(DiffCallback()) {
+
+    private var hideCompletedFlag: Boolean = false
+    private var originalList = listOf<TodoItem>()
+
+    fun submitListWithFilterApply(list: List<TodoItem>) {
+        originalList = list
+
+        submitList(filteredList())
+    }
+
+    fun changeVisibility() {
+        hideCompletedFlag = !hideCompletedFlag
+        submitListWithFilterApply(originalList)
+    }
+
+    private fun filteredList(): List<TodoItem> {
+        return if (hideCompletedFlag)
+            originalList.filter { !it.isDone }
+        else
+            originalList
+    }
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val isDoneCheckBox = itemView.findViewById<AppCompatCheckBox>(R.id.is_done)
@@ -66,11 +87,18 @@ class TodoListAdapter(
             setDescriptionText(currentItem.description, currentItem.isDone)
 
             infoButton.setOnClickListener {
-                todoClickEvent(currentItem.id)
+                todoInfoClickEvent(currentItem.id)
             }
 
             isDoneCheckBox.setOnCheckedChangeListener { _, isChecked ->
                 setDescriptionText(currentItem.description, isChecked)
+
+                originalList.findLast { it.id == currentItem.id }?.apply {
+                    isDone = !isDone
+                }
+                submitListWithFilterApply(originalList)
+
+                todoCheckBoxStatusChangedEvent(currentItem.id, isChecked)
             }
         }
     }

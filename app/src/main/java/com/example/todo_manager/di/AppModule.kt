@@ -8,7 +8,8 @@ import org.koin.dsl.module
 val appModule = module {
     viewModel {
         MainScreenViewModel(
-            loadTodoTasksUseCase = get()
+            loadTodoTasksUseCase = get(),
+            updateTodoStatusUseCase = get()
         )
     }
 
