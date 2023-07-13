@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todo_manager.domain.model.TodoItem
-import com.example.todo_manager.domain.usecase.LoadTodoTasksUseCase
-import com.example.todo_manager.domain.usecase.UpdateTodoStatusUseCase
+import com.example.domain.usecase.LoadTodoTasksUseCase
+import com.example.domain.usecase.UpdateTodoStatusUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -17,6 +17,14 @@ class MainScreenViewModel(
 
     private val _todoList = MutableLiveData<List<TodoItem>>()
     val todoList: LiveData<List<TodoItem>> = _todoList
+
+    private var isFiltered: Boolean = false
+
+    fun invIsFiltered() {
+        isFiltered = !isFiltered
+    }
+
+    fun getIsFiltered(): Boolean = isFiltered
 
     fun loadTodoList() {
         viewModelScope.launch(Dispatchers.IO) {

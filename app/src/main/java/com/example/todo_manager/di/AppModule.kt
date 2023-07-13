@@ -15,7 +15,8 @@ val appModule = module {
 
     viewModel {
         TodoScreenViewModel(
-            createTodoUseCase = get()
+            createOrUpdateTodoUseCase = get(),
+            deleteTodoUseCase = get()
         )
     }
 }

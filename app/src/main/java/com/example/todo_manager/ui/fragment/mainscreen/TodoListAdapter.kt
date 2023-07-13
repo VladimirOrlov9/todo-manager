@@ -19,7 +19,7 @@ const val VIEW_TYPE_TODO = 1
 const val VIEW_TYPE_NEW_TODO = 2
 
 class TodoListAdapter(
-    private val todoInfoClickEvent: (String) -> Unit,
+    private val todoInfoClickEvent: (TodoItem) -> Unit,
     private val todoCheckBoxStatusChangedEvent: (String, Boolean) -> Unit,
     private val newTodoClickEvent: () -> Unit
 ) : ListAdapter<TodoItem, RecyclerView.ViewHolder>(DiffCallback()) {
@@ -44,6 +44,8 @@ class TodoListAdapter(
         else
             originalList
     }
+
+    fun checkVisibility(): Boolean = hideCompletedFlag
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val isDoneCheckBox = itemView.findViewById<AppCompatCheckBox>(R.id.is_done)
@@ -87,7 +89,7 @@ class TodoListAdapter(
             setDescriptionText(currentItem.description, currentItem.isDone)
 
             infoButton.setOnClickListener {
-                todoInfoClickEvent(currentItem.id)
+                todoInfoClickEvent(currentItem)
             }
 
             isDoneCheckBox.setOnCheckedChangeListener { _, isChecked ->

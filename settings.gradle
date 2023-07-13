@@ -14,5 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "todo-manager"
 include ':app'
-include ':domain'
 include ':data'
+include ':domain'

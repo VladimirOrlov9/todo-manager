@@ -7,15 +7,15 @@ import androidx.room.Update
 import com.example.todo_manager.data.storage.room.entity.TodoItemEntity
 import com.example.todo_manager.domain.model.Importance
 import com.example.todo_manager.domain.model.TodoItem
-import com.example.todo_manager.domain.repository.TodoItemsRepository
+import com.example.domain.repository.TodoItemsRepository
 
 @Dao
 interface TodoDao: TodoItemsRepository {
     @Insert
     suspend fun insertTodoItem(todoItem: TodoItemEntity)
 
-    @Query("DELETE FROM todos WHERE id is :id")
-    suspend fun deleteTodoItem(id: String)
+    @Query("DELETE FROM todos WHERE id is :todoId")
+    override suspend fun deleteTodoById(todoId: String)
 
     @Update
     suspend fun updateTodoItem(todoItem: TodoItemEntity)
@@ -26,15 +26,22 @@ interface TodoDao: TodoItemsRepository {
     @Query("UPDATE todos SET is_done = :status WHERE id = :id")
     override suspend fun updateTodoStatus(id: String, status: Boolean)
 
+    @Query("SELECT EXISTS(SELECT * FROM todos WHERE id = :todoId)")
+    fun isTodoExists(todoId: String): Boolean
+
     override suspend fun getTodoItems(): List<TodoItem> {
         val list = getAllTodos()
         println(list.toString())
         return list.mapToTodoItem()
     }
 
-    override suspend fun addNewTodo(todoItem: TodoItem) {
+    override suspend fun insertOrUpdateTodo(todoItem: TodoItem) {
         val todoEntity: TodoItemEntity = todoItem.mapToTodoItemEntity()
-        insertTodoItem(todoEntity)
+
+        if (isTodoExists(todoEntity.id))
+            updateTodoItem(todoEntity)
+        else
+            insertTodoItem(todoEntity)
     }
 }
 

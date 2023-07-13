@@ -1,8 +1,9 @@
 package com.example.todo_manager.di
 
-import com.example.todo_manager.domain.usecase.CreateTodoUseCase
-import com.example.todo_manager.domain.usecase.LoadTodoTasksUseCase
-import com.example.todo_manager.domain.usecase.UpdateTodoStatusUseCase
+import com.example.domain.usecase.CreateOrUpdateTodoUseCase
+import com.example.domain.usecase.DeleteTodoUseCase
+import com.example.domain.usecase.LoadTodoTasksUseCase
+import com.example.domain.usecase.UpdateTodoStatusUseCase
 import org.koin.dsl.module
 
 val domainModule = module {
@@ -12,12 +13,17 @@ val domainModule = module {
         )
     }
     factory {
-        CreateTodoUseCase(
+        CreateOrUpdateTodoUseCase(
             todoItemsRepository = get()
         )
     }
     factory {
         UpdateTodoStatusUseCase(
+            todoItemsRepository = get()
+        )
+    }
+    factory {
+        DeleteTodoUseCase(
             todoItemsRepository = get()
         )
     }

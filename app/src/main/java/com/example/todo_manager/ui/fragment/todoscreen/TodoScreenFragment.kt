@@ -1,7 +1,9 @@
 package com.example.todo_manager.ui.fragment.todoscreen
 
 import android.icu.text.SimpleDateFormat
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +15,15 @@ import com.example.todo_manager.R
 import com.example.todo_manager.databinding.FragmentTodoScreenBinding
 import com.example.todo_manager.domain.model.Importance
 import com.example.todo_manager.domain.model.TodoItem
+import com.example.todo_manager.ui.fragment.mainscreen.TODO_BUNDLE
 import com.google.android.material.datepicker.MaterialDatePicker
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.*
+
+inline fun <reified T : Parcelable> Bundle.parcelable(key: String): T? = when {
+    SDK_INT >= 33 -> getParcelable(key, T::class.java)
+    else -> @Suppress("DEPRECATION") getParcelable(key) as? T
+}
 
 class TodoScreenFragment : Fragment() {
 
@@ -23,6 +31,14 @@ class TodoScreenFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val vm by viewModel<TodoScreenViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        arguments?.parcelable<TodoItem>(TODO_BUNDLE)?.let {
+            vm.setTodo(it)
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,12 +68,13 @@ class TodoScreenFragment : Fragment() {
         binding.toolbar.setupWithNavController(findNavController())
         initImportanceSpinner()
         initDeadlineCalendar()
+        initExistingData()
 
         binding.toolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.save_action -> {
-                    val todo: TodoItem = collectTodoInfoFromUI()
-                    vm.createNewTodoItem(todo)
+                    saveTodoInfoFromUI()
+                    findNavController().popBackStack()
                     true
                 }
                 else -> false
@@ -65,7 +82,29 @@ class TodoScreenFragment : Fragment() {
         }
 
         vm.dateInMillis.observe(viewLifecycleOwner) { dateInMillis ->
-            binding.deadlineDateTextview.text = getDateFormMillis(dateInMillis)
+            binding.deadlineDateTextview.text = getDateFromMillis(dateInMillis)
+        }
+
+        binding.deleteButton.setOnClickListener {
+            vm.deleteTodo()
+            findNavController().popBackStack()
+        }
+    }
+
+    private fun initExistingData() {
+        vm.getTodo()?.let {  todoItem ->
+            binding.apply {
+                todoEdittext.setText(todoItem.description)
+                importanceSpinner.setSelection(todoItem.importance.ordinal)
+
+                val deadline = todoItem.deadline
+                if (deadline != null) {
+                    deadlineSwitch.isChecked = true
+                    vm.setNewDate(deadline)
+                }
+
+                deleteButton.isEnabled = true
+            }
         }
     }
 
@@ -78,7 +117,7 @@ class TodoScreenFragment : Fragment() {
         }
         binding.deadlineDateTextview.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+                .setSelection(vm.dateInMillis.value)
                 .build()
                 .apply {
                     addOnPositiveButtonClickListener {
@@ -89,31 +128,24 @@ class TodoScreenFragment : Fragment() {
         }
     }
 
-    private fun getDateFormMillis(millis: Long): String {
+    private fun getDateFromMillis(millis: Long): String {
         val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         return sdf.format(millis)
     }
 
-    private fun collectTodoInfoFromUI(): TodoItem {
-        val creationDate = System.currentTimeMillis()
+    private fun saveTodoInfoFromUI() {
         val todoText = binding.todoEdittext.text.toString()
         val importance = Importance.values()[binding.importanceSpinner.selectedItemPosition]
         val deadlineDate = when (binding.deadlineSwitch.isChecked) {
-            true -> {
-                vm.dateInMillis.value
-            }
+            true -> vm.dateInMillis.value
             else -> null
         }
-        val id = UUID.randomUUID().toString()
 
-        return TodoItem(
-            id = id,
+        vm.createNewTodoItem(
             description = todoText,
             importance = importance,
-            deadline = deadlineDate,
-            creationDate = creationDate
+            deadline = deadlineDate
         )
-
     }
 
     override fun onDestroy() {

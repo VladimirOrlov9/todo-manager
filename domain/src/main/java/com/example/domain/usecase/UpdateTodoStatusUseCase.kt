@@ -1,6 +1,6 @@
-package com.example.todo_manager.domain.usecase
+package com.example.domain.usecase
 
-import com.example.todo_manager.domain.repository.TodoItemsRepository
+import com.example.domain.repository.TodoItemsRepository
 
 class UpdateTodoStatusUseCase(
     private val todoItemsRepository: TodoItemsRepository

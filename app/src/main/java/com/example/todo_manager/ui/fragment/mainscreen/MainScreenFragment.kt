@@ -12,7 +12,8 @@ import com.example.todo_manager.R
 import com.example.todo_manager.databinding.FragmentMainScreenBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-const val TODO_ID_BUNDLE = "todo_id_bundle"
+const val TODO_BUNDLE = "todo_bundle"
+const val WAS_FILTERED_FLAG = "was_filtered_flag"
 
 class MainScreenFragment : Fragment() {
 
@@ -47,6 +48,7 @@ class MainScreenFragment : Fragment() {
             when(menuItem.itemId) {
                 R.id.visibility -> {
                     adapter.changeVisibility()
+                    vm.invIsFiltered()
                     true
                 }
                 else -> false
@@ -56,9 +58,9 @@ class MainScreenFragment : Fragment() {
 
     private fun initRecyclerView() {
         adapter = TodoListAdapter(
-            todoInfoClickEvent = { id ->
+            todoInfoClickEvent = { todoItem ->
                 val bundle = Bundle().apply {
-                    putString(TODO_ID_BUNDLE, id)
+                    putParcelable(TODO_BUNDLE, todoItem)
                 }
                 findNavController().navigate(
                     R.id.action_mainScreenFragment_to_todoScreenFragment,
@@ -74,6 +76,9 @@ class MainScreenFragment : Fragment() {
             })
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
+
+        if (vm.getIsFiltered())
+            adapter.changeVisibility()
     }
 
     override fun onStart() {
