@@ -15,10 +15,13 @@ import java.util.*
 class TodoScreenViewModel(
     private val createOrUpdateTodoUseCase: CreateOrUpdateTodoUseCase,
     private val deleteTodoUseCase: DeleteTodoUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _dateInMillis = MutableLiveData(System.currentTimeMillis())
     val dateInMillis: LiveData<Long> = _dateInMillis
+
+    private val _successDBOperation = MutableLiveData<Boolean>()
+    val successDBOperation: LiveData<Boolean> = _successDBOperation
 
     private var todo: TodoItem? = null
 
@@ -39,7 +42,7 @@ class TodoScreenViewModel(
     ) {
         val currentDate = System.currentTimeMillis()
 
-        val todoToSave = todo?.let {  todoItem ->
+        val todoToSave = todo?.let { todoItem ->
             todoItem.description = description
             todoItem.importance = importance
             todoItem.deadline = deadline
@@ -59,17 +62,18 @@ class TodoScreenViewModel(
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            createOrUpdateTodoUseCase.execute(todoToSave)
+            val result = createOrUpdateTodoUseCase.execute(todoToSave)
+            _successDBOperation.postValue(result)
         }
     }
 
     fun deleteTodo() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val todoId = todo?.id
-
-            if (todoId != null)
-                deleteTodoUseCase.execute(todoId)
-        }
+        val todoId = todo?.id
+        if (todoId != null)
+            viewModelScope.launch(Dispatchers.IO) {
+                val result = deleteTodoUseCase.execute(todoId)
+                _successDBOperation.postValue(result)
+            }
     }
 
 }

@@ -5,15 +5,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.todo_manager.R
 import com.example.todo_manager.databinding.FragmentMainScreenBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val TODO_BUNDLE = "todo_bundle"
-const val WAS_FILTERED_FLAG = "was_filtered_flag"
 
 class MainScreenFragment : Fragment() {
 
@@ -29,6 +30,7 @@ class MainScreenFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentMainScreenBinding.inflate(inflater, container, false)
+
         return binding.root
     }
 
@@ -36,28 +38,44 @@ class MainScreenFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.toolbar.setupWithNavController(findNavController())
+
         initRecyclerView()
 
         vm.todoList.observe(viewLifecycleOwner) { newList ->
-            adapter.submitListWithFilterApply(newList)
+            adapter.submitList(newList)
         }
         binding.addFab.setOnClickListener {
             findNavController().navigate(R.id.action_mainScreenFragment_to_todoScreenFragment)
         }
-        binding.toolbar.setOnMenuItemClickListener {  menuItem ->
-            when(menuItem.itemId) {
+        binding.toolbar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
                 R.id.visibility -> {
-                    adapter.changeVisibility()
                     vm.invIsFiltered()
+
                     true
                 }
                 else -> false
             }
         }
+
+        vm.completed.observe(viewLifecycleOwner) {
+            binding.toolbar.subtitle = getCompletedObjectsString(it)
+        }
+
+        vm.isFiltered.observe(viewLifecycleOwner) { isFiltered ->
+            if (isFiltered)
+                binding.toolbar.menu.findItem(R.id.visibility).setIcon(Visibility.INVISIBLE.resId)
+            else
+                binding.toolbar.menu.findItem(R.id.visibility).setIcon(Visibility.VISIBLE.resId)
+        }
     }
+
+    private fun getCompletedObjectsString(completedSum: Int) =
+        getString(R.string.completed) + ": " + completedSum
 
     private fun initRecyclerView() {
         adapter = TodoListAdapter(
+            hideCompletedFlag = vm.isFiltered.value ?: false,
             todoInfoClickEvent = { todoItem ->
                 val bundle = Bundle().apply {
                     putParcelable(TODO_BUNDLE, todoItem)
@@ -71,23 +89,35 @@ class MainScreenFragment : Fragment() {
                 vm.updateTodoStatus(id, isChecked)
             },
             newTodoClickEvent = {
-                // TODO: navigate to todo creation
                 findNavController().navigate(R.id.action_mainScreenFragment_to_todoScreenFragment)
+            },
+            swipeDeleteEvent = {
+                vm.deleteTodo(it)
             })
+
         binding.recycler.layoutManager = LinearLayoutManager(requireContext())
         binding.recycler.adapter = adapter
-
-        if (vm.getIsFiltered())
-            adapter.changeVisibility()
+        val callback = TodoTouchHelperCallback(
+            adapter,
+            ResourcesCompat.getDrawable(resources, R.drawable.baseline_done_white, null),
+            ResourcesCompat.getDrawable(resources, R.drawable.baseline_delete_white, null)
+        )
+        val touchHelper = ItemTouchHelper(callback)
+        touchHelper.attachToRecyclerView(binding.recycler)
     }
 
     override fun onStart() {
         super.onStart()
-
         vm.loadTodoList()
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
+}
+
+enum class Visibility(val resId: Int) {
+    VISIBLE(R.drawable.baseline_visibility_24),
+    INVISIBLE(R.drawable.baseline_visibility_off_24)
 }

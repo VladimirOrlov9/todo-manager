@@ -11,6 +11,9 @@
     <string name="importance">Importance</string>
     <string name="deadline_is">Deadline is</string>
     <string name="delete">Delete</string>
+    <string name="importance_picker">Importance picker</string>
+    <string name="completed">Completed</string>
+    <string name="see_todo_info">See todo info</string>
 
     <string-array name="importance_variants">
         <item>No</item>

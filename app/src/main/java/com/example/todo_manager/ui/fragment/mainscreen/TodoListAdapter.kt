@@ -5,6 +5,7 @@ import android.text.style.StrikethroughSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CheckBox
 import androidx.appcompat.widget.AppCompatCheckBox
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.AppCompatTextView
@@ -19,33 +20,12 @@ const val VIEW_TYPE_TODO = 1
 const val VIEW_TYPE_NEW_TODO = 2
 
 class TodoListAdapter(
+    private var hideCompletedFlag: Boolean,
     private val todoInfoClickEvent: (TodoItem) -> Unit,
     private val todoCheckBoxStatusChangedEvent: (String, Boolean) -> Unit,
-    private val newTodoClickEvent: () -> Unit
-) : ListAdapter<TodoItem, RecyclerView.ViewHolder>(DiffCallback()) {
-
-    private var hideCompletedFlag: Boolean = false
-    private var originalList = listOf<TodoItem>()
-
-    fun submitListWithFilterApply(list: List<TodoItem>) {
-        originalList = list
-
-        submitList(filteredList())
-    }
-
-    fun changeVisibility() {
-        hideCompletedFlag = !hideCompletedFlag
-        submitListWithFilterApply(originalList)
-    }
-
-    private fun filteredList(): List<TodoItem> {
-        return if (hideCompletedFlag)
-            originalList.filter { !it.isDone }
-        else
-            originalList
-    }
-
-    fun checkVisibility(): Boolean = hideCompletedFlag
+    private val newTodoClickEvent: () -> Unit,
+    private val swipeDeleteEvent: (String) -> Unit
+) : ListAdapter<TodoItem, RecyclerView.ViewHolder>(DiffCallback()), SwipeActions {
 
     inner class TodoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val isDoneCheckBox = itemView.findViewById<AppCompatCheckBox>(R.id.is_done)
@@ -92,14 +72,10 @@ class TodoListAdapter(
                 todoInfoClickEvent(currentItem)
             }
 
-            isDoneCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            isDoneCheckBox.setOnClickListener {
+                val isChecked = (it as CheckBox).isChecked
+
                 setDescriptionText(currentItem.description, isChecked)
-
-                originalList.findLast { it.id == currentItem.id }?.apply {
-                    isDone = !isDone
-                }
-                submitListWithFilterApply(originalList)
-
                 todoCheckBoxStatusChangedEvent(currentItem.id, isChecked)
             }
         }
@@ -115,12 +91,11 @@ class TodoListAdapter(
 
     class DiffCallback : DiffUtil.ItemCallback<TodoItem>() {
         override fun areItemsTheSame(oldItem: TodoItem, newItem: TodoItem): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.id == newItem.id && oldItem.creationDate == newItem.creationDate
         }
 
         override fun areContentsTheSame(oldItem: TodoItem, newItem: TodoItem): Boolean =
             oldItem == newItem
-
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -152,5 +127,20 @@ class TodoListAdapter(
             holder.bind()
         else if (holder is TodoViewHolder)
             holder.bind(position)
+    }
+
+    override fun onItemDeleted(position: Int) {
+        val id = currentList[position].id
+
+        notifyItemRemoved(position)
+        swipeDeleteEvent(id)
+    }
+
+    override fun onItemChecked(position: Int) {
+        val newCheckStatus = !currentList[position].isDone
+        val id = currentList[position].id
+
+        notifyItemChanged(position)
+        todoCheckBoxStatusChangedEvent(id, newCheckStatus)
     }
 }

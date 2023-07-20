@@ -9,7 +9,8 @@ val appModule = module {
     viewModel {
         MainScreenViewModel(
             loadTodoTasksUseCase = get(),
-            updateTodoStatusUseCase = get()
+            updateTodoStatusUseCase = get(),
+            deleteTodoUseCase = get()
         )
     }
 

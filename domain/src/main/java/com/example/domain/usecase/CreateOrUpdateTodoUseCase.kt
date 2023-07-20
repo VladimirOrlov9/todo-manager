@@ -6,7 +6,7 @@ import com.example.domain.repository.TodoItemsRepository
 class CreateOrUpdateTodoUseCase(
     private val todoItemsRepository: TodoItemsRepository
 ) {
-    suspend fun execute(todo: TodoItem) {
+    suspend fun execute(todo: TodoItem): Boolean {
         return todoItemsRepository.insertOrUpdateTodo(todo)
     }
 }

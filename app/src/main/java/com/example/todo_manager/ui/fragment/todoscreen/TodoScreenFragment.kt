@@ -74,7 +74,6 @@ class TodoScreenFragment : Fragment() {
             when (menuItem.itemId) {
                 R.id.save_action -> {
                     saveTodoInfoFromUI()
-                    findNavController().popBackStack()
                     true
                 }
                 else -> false
@@ -87,7 +86,11 @@ class TodoScreenFragment : Fragment() {
 
         binding.deleteButton.setOnClickListener {
             vm.deleteTodo()
-            findNavController().popBackStack()
+        }
+
+        vm.successDBOperation.observe(viewLifecycleOwner) {
+            if (it)
+                findNavController().popBackStack()
         }
     }
 

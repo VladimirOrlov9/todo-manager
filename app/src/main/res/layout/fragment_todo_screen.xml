@@ -46,6 +46,8 @@
         android:id="@+id/importance_spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:contentDescription="@string/importance_picker"
         android:layout_marginHorizontal="16dp"
         android:layout_marginTop="4dp"
         android:foregroundTint="@color/label_tertiary"

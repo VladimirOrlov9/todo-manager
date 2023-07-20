@@ -4,7 +4,7 @@ import com.example.todo_manager.domain.model.TodoItem
 
 interface TodoItemsRepository {
     suspend fun getTodoItems(): List<TodoItem>
-    suspend fun insertOrUpdateTodo(todoItem: TodoItem)
+    suspend fun insertOrUpdateTodo(todoItem: TodoItem): Boolean
     suspend fun updateTodoStatus(id: String, status: Boolean)
-    suspend fun deleteTodoById(todoId: String)
+    suspend fun deleteTodoById(todoId: String): Boolean
 }
