@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.domain.getDateFromMillis
 import com.example.todo_manager.R
 import com.example.todo_manager.databinding.FragmentTodoScreenBinding
 import com.example.todo_manager.domain.model.Importance
@@ -129,11 +130,6 @@ class TodoScreenFragment : Fragment() {
                 }
             datePicker.show(parentFragmentManager, "deadline_calendar")
         }
-    }
-
-    private fun getDateFromMillis(millis: Long): String {
-        val sdf = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
-        return sdf.format(millis)
     }
 
     private fun saveTodoInfoFromUI() {

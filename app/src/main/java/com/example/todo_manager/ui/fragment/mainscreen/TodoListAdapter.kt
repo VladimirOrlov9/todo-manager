@@ -13,6 +13,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.domain.getDateFromMillis
 import com.example.todo_manager.R
 import com.example.todo_manager.domain.model.TodoItem
 
@@ -32,6 +33,7 @@ class TodoListAdapter(
         private val descriptionTextView =
             itemView.findViewById<AppCompatTextView>(R.id.todo_description)
         private val infoButton = itemView.findViewById<AppCompatImageButton>(R.id.todo_info_button)
+        private val dateTextView = itemView.findViewById<AppCompatTextView>(R.id.date)
 
         private fun setDescriptionText(description: String, isChecked: Boolean) {
             descriptionTextView.apply {
@@ -78,6 +80,15 @@ class TodoListAdapter(
                 setDescriptionText(currentItem.description, isChecked)
                 todoCheckBoxStatusChangedEvent(currentItem.id, isChecked)
             }
+
+            val deadline = currentItem.deadline
+            if (deadline != null) {
+                dateTextView.apply {
+                    visibility = View.VISIBLE
+                    text = getDateFromMillis(deadline)
+                }
+            } else
+                dateTextView.visibility = View.GONE
         }
     }
 
