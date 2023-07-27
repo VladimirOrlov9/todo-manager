@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.core.view.get
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.domain.getDateFromMillis
@@ -56,7 +57,6 @@ class TodoScreenFragment : Fragment() {
             R.array.importance_variants,
             android.R.layout.simple_spinner_item
         ).also { adapter ->
-
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.importanceSpinner.adapter = adapter
         }

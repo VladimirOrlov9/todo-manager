@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.todo_manager.R
 import com.example.todo_manager.databinding.FragmentMainScreenBinding
+import com.google.android.material.snackbar.Snackbar
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 const val TODO_BUNDLE = "todo_bundle"
@@ -92,6 +93,10 @@ class MainScreenFragment : Fragment() {
                 findNavController().navigate(R.id.action_mainScreenFragment_to_todoScreenFragment)
             },
             swipeDeleteEvent = {
+                Snackbar.make(requireView(), "Todo deleted.", Snackbar.LENGTH_SHORT)
+                    .setAction("Undo") {
+
+                    }
                 vm.deleteTodo(it)
             })
 
